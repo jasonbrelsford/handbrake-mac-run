@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  handbrake:
+    build: .
+    volumes:
+      - ~/Movies:/output                 # Output location
+      - ~/Desktop:/input                 # Monitors Mac Desktop
+      - ./gdrive-creds:/root/.gdrive     # persist credentials
+    environment:
+      - INPUT_DIR=/input
+      - OUTPUT_DIR=/output
+      - COMPOSE_BAKE=true
+    restart: unless-stopped
+
