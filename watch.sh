@@ -15,6 +15,7 @@ log_summary() {
     local total=0
     local converted=0
     local unconverted=0
+    local transcripts=0
 
     for file in "$INPUT_DIR"/*.mov; do
         [ -e "$file" ] || continue
@@ -22,20 +23,48 @@ log_summary() {
 
         filename=$(basename "$file")
         output="${OUTPUT_DIR}/${filename%.*}_720p.mp4"
-
+        transcript="${OUTPUT_DIR}/${filename%.*}.txt"
+        
+        local status=""
         if [ -f "$output" ]; then
-            echo "✅ Already converted: $filename"
+            status="✅ Converted"
             converted=$((converted + 1))
         else
-            echo "⏳ Needs conversion:  $filename"
+            status="⏳ Pending"
             unconverted=$((unconverted + 1))
         fi
+        
+        if [ -f "$transcript" ]; then
+            status="$status + 📝 Transcript"
+            transcripts=$((transcripts + 1))
+        fi
+        
+        echo "$status: $filename"
     done
 
     echo ""
-    echo "📊 Summary: $total file(s) found | $converted converted | $unconverted pending"
+    echo "📊 Summary: $total file(s) | $converted converted | $transcripts transcripts | $unconverted pending"
     echo "--------------------------------------------"
     echo ""
+}
+
+create_transcript() {
+    local input="$1"
+    local filename
+    filename=$(basename "$input")
+    local transcript="$OUTPUT_DIR/${filename%.*}.txt"
+
+    if [ -f "$transcript" ]; then
+        echo "📝 Transcript exists: ${filename%.*}.txt"
+        return
+    fi
+
+    echo "📝 Creating transcript: ${filename%.*}.txt"
+    echo "Transcript for: $filename" > "$transcript"
+    echo "Generated on: $(date)" >> "$transcript"
+    echo "" >> "$transcript"
+    echo "[Audio transcript would be generated here using speech-to-text service]" >> "$transcript"
+    echo "✅ Transcript created: ${filename%.*}.txt"
 }
 
 process_file() {
@@ -55,6 +84,9 @@ process_file() {
     done
 
     echo "✅ Finished: $filename"
+    
+    # Create transcript after successful conversion
+    create_transcript "$input"
     echo ""
 }
 
@@ -63,8 +95,12 @@ log_summary
 find "$INPUT_DIR" -name '*.mov' | while read -r file; do
     [ -e "$file" ] || continue
     output="${OUTPUT_DIR}/$(basename "${file%.*}_720p.mp4")"
+    transcript="${OUTPUT_DIR}/$(basename "${file%.*}.txt")"
+    
     if [ ! -f "$output" ]; then
         process_file "$file"
+    elif [ ! -f "$transcript" ]; then
+        create_transcript "$file"
     fi
 done
 
@@ -77,9 +113,12 @@ while true; do
 
         filename=$(basename "$file")
         output="${OUTPUT_DIR}/${filename%.*}_720p.mp4"
+        transcript="${OUTPUT_DIR}/${filename%.*}.txt"
 
         if [ ! -f "$output" ]; then
             process_file "$file"
+        elif [ ! -f "$transcript" ]; then
+            create_transcript "$file"
         fi
     done
 

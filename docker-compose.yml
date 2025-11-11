@@ -13,3 +13,15 @@ services:
       - COMPOSE_BAKE=true
     restart: unless-stopped
 
+  # Optional transcription service - run separately from transcribe/ directory
+  # transcriber:
+  #   build: ./transcribe
+  #   volumes:
+  #     - ~/Movies:/output
+  #     - ~/Desktop:/input
+  #     - ./gdrive-creds:/root/.gdrive
+  #   environment:
+  #     - INPUT_DIR=/input
+  #     - OUTPUT_DIR=/output
+  #   restart: unless-stopped
+

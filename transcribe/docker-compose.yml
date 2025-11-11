@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  transcriber:
+    build: .
+    volumes:
+      - ~/Movies:/output                 # Output location (same as handbrake)
+      - ~/Desktop:/input                 # Input location (same as handbrake)
+      - ../gdrive-creds:/root/.gdrive    # persist credentials
+    environment:
+      - INPUT_DIR=/input
+      - OUTPUT_DIR=/output
+      - COMPOSE_BAKE=true
+    restart: unless-stopped
