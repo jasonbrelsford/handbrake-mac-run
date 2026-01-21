@@ -3,10 +3,22 @@
 INPUT_DIR="${INPUT_DIR:-/data}"
 OUTPUT_DIR="${OUTPUT_DIR:-/data}"
 
+
+# Set resolution (default 720p)
+RESOLUTION="${RESOLUTION:-720}"
+if [ "$RESOLUTION" = "1080" ]; then
+    PRESET="Fast 1080p30"
+    RES_SUFFIX="1080p"
+else
+    PRESET="Fast 720p30"
+    RES_SUFFIX="720p"
+fi
+
 echo "--------------------------------------------"
-echo " 🎬 HandBrake Watcher - 720p Converter"
+echo " 🎬 HandBrake Watcher - $RES_SUFFIX Converter"
 echo " Watching: $INPUT_DIR"
 echo " Output to: $OUTPUT_DIR"
+echo " Resolution: $RES_SUFFIX"
 echo "--------------------------------------------"
 echo ""
 
@@ -22,7 +34,7 @@ log_summary() {
         total=$((total + 1))
 
         filename=$(basename "$file")
-        output="${OUTPUT_DIR}/${filename%.*}_720p.mp4"
+        output="${OUTPUT_DIR}/${filename%.*}_${RES_SUFFIX}.mp4"
         transcript="${OUTPUT_DIR}/${filename%.*}.txt"
         
         local status=""
@@ -71,13 +83,13 @@ process_file() {
     local input="$1"
     local filename
     filename=$(basename "$input")
-    local output="$OUTPUT_DIR/${filename%.*}_720p.mp4"
+    local output="$OUTPUT_DIR/${filename%.*}_${RES_SUFFIX}.mp4"
 
     echo "🔁 Starting conversion: $filename"
     echo "     Output: ${output##*/}"
     echo ""
 
-    HandBrakeCLI -i "$input" -o "$output" --preset="Fast 1080p30" 2>&1 | while IFS= read -r line; do
+    HandBrakeCLI -i "$input" -o "$output" --preset="$PRESET" 2>&1 | while IFS= read -r line; do
         if [[ "$line" == Encoding:* || "$line" == *% ]]; then
             echo "$line"
         fi
@@ -94,7 +106,7 @@ process_file() {
 log_summary
 find "$INPUT_DIR" -name '*.mov' | while read -r file; do
     [ -e "$file" ] || continue
-    output="${OUTPUT_DIR}/$(basename "${file%.*}_720p.mp4")"
+    output="${OUTPUT_DIR}/$(basename "${file%.*}_${RES_SUFFIX}.mp4")"
     transcript="${OUTPUT_DIR}/$(basename "${file%.*}.txt")"
     
     if [ ! -f "$output" ]; then
@@ -112,7 +124,7 @@ while true; do
         [ -e "$file" ] || continue
 
         filename=$(basename "$file")
-        output="${OUTPUT_DIR}/${filename%.*}_720p.mp4"
+        output="${OUTPUT_DIR}/${filename%.*}_${RES_SUFFIX}.mp4"
         transcript="${OUTPUT_DIR}/${filename%.*}.txt"
 
         if [ ! -f "$output" ]; then

@@ -11,6 +11,7 @@ services:
       - INPUT_DIR=/input
       - OUTPUT_DIR=/output
       - COMPOSE_BAKE=true
+      - RESOLUTION=720
     restart: unless-stopped
 
   # Optional transcription service - run separately from transcribe/ directory
