@@ -77,12 +77,6 @@ process_file() {
             if [ -f "$whisper_output" ]; then
                 mv "$whisper_output" "$transcript"
                 echo "✅ Finished transcription: $filename"
-                # Rename original file to add 'processed_' prefix
-                local dirpath
-                dirpath=$(dirname "$input")
-                local newname="$dirpath/processed_$(basename \"$input\")"
-                mv "$input" "$newname"
-                echo "📦 Renamed original file to: $(basename "$newname")"
             else
                 echo "❌ Whisper output not found for: $filename"
             fi

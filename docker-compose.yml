@@ -1,3 +1,4 @@
+
 version: "3.8"
 
 services:
@@ -14,15 +15,15 @@ services:
       - RESOLUTION=720
     restart: unless-stopped
 
-  # Optional transcription service - run separately from transcribe/ directory
-  # transcriber:
-  #   build: ./transcribe
-  #   volumes:
-  #     - ~/Movies:/output
-  #     - ~/Desktop:/input
-  #     - ./gdrive-creds:/root/.gdrive
-  #   environment:
-  #     - INPUT_DIR=/input
-  #     - OUTPUT_DIR=/output
-  #   restart: unless-stopped
+  transcriber:
+    build: ./transcribe
+    volumes:
+      - ~/Movies:/output                 # Output location (same as handbrake)
+      - ~/Desktop:/input                 # Input location (same as handbrake)
+      - ./gdrive-creds:/root/.gdrive     # persist credentials
+    environment:
+      - INPUT_DIR=/input
+      - OUTPUT_DIR=/output
+      - COMPOSE_BAKE=true
+    restart: unless-stopped
 

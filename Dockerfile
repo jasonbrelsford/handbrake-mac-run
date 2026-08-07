@@ -14,9 +14,12 @@ RUN curl -L -o /usr/local/bin/gdrive \
 # Create a working directory
 WORKDIR /data
 
-# Copy script
-COPY watch.sh /watch.sh
-RUN chmod +x /watch.sh
 
-ENTRYPOINT ["/watch.sh"]
+# Copy watcher scripts
+COPY watch.sh /watch.sh
+COPY start-watchers.sh /start-watchers.sh
+COPY transcribe/watch-transcribe.sh /transcribe/watch-transcribe.sh
+RUN chmod +x /watch.sh /start-watchers.sh /transcribe/watch-transcribe.sh
+
+ENTRYPOINT ["/start-watchers.sh"]
 

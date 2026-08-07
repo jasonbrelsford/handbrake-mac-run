@@ -1,20 +1,21 @@
+
 FROM dorowu/ubuntu-desktop-lxde-vnc:latest
 
-# Configure DNS and package sources
-RUN echo 'nameserver 8.8.8.8' > /etc/resolv.conf && \
-    echo 'nameserver 8.8.4.4' >> /etc/resolv.conf
 
-# Install dependencies for transcription
-RUN apt-get update --fix-missing && apt-get install -y \
-    ffmpeg \
-    python3 \
-    python3-pip \
-    inotify-tools \
-    curl \
+# Disable Google Chrome repo to avoid GPG error, then install dependencies for transcription
+RUN sed -i 's/^deb/#deb/g' /etc/apt/sources.list.d/google-chrome.list 2>/dev/null || true \
+    && apt-get update --fix-missing \
+    && apt-get install -y \
+        ffmpeg \
+        python3 \
+        python3-pip \
+        inotify-tools \
+        curl \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install whisper for transcription
-RUN pip3 install openai-whisper
+
+# Install whisper for transcription with increased timeout
+RUN pip3 install --default-timeout=300 openai-whisper
 
 # Install gdrive (same as main project)
 RUN curl -L -o /usr/local/bin/gdrive \
