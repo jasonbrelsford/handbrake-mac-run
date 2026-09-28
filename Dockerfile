@@ -1,4 +1,14 @@
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
+
+# handbrake-cli lives in the "non-free" component, which is not enabled by
+# default on the official debian slim image. Enable contrib/non-free before
+# installing, otherwise apt-get fails with "Unable to locate package"
+# (exit code 100). Bookworm (Debian 12) is used instead of Bullseye (11)
+# because Bullseye's security pool has rotated packages, causing 404s on the
+# pinned versions during apt-get install.
+RUN echo "deb http://deb.debian.org/debian bookworm main contrib non-free non-free-firmware" > /etc/apt/sources.list && \
+    echo "deb http://deb.debian.org/debian bookworm-updates main contrib non-free non-free-firmware" >> /etc/apt/sources.list && \
+    echo "deb http://security.debian.org/debian-security bookworm-security main contrib non-free non-free-firmware" >> /etc/apt/sources.list
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
